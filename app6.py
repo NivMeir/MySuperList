@@ -40,33 +40,36 @@ def main():
 
 @app.route("/mysuperlist", methods = ["GET"])
 def my_list():
-    pname = "Banana"
-    pclass = str(1)
-    data = []
-    product = {
+    if request.method == "GET":
+        pname = "Banana"
+        pclass = str(1)
+        data = []
+        product = {
+                'pname': pname,
+                'pclass': pclass,
+            }
+        data.append(product)
+        data.append(product)
+        data.append(product)
+        pname = "apple"
+        pclass = str(1)
+        product = {
             'pname': pname,
             'pclass': pclass,
         }
-    data.append(product)
-    data.append(product)
-    data.append(product)
-    pname = "apple"
-    pclass = str(1)
-    product = {
-        'pname': pname,
-        'pclass': pclass,
-    }
-    data.append(product)
-    data.append(product)
-    pname = "orange"
-    pclass = str(1)
-    product = {
-        'pname': pname,
-        'pclass': pclass,
-    }
-    data.append(product)
-    data.append(product)
-    return render_template("mysuperlist.html", data = data)
+        data.append(product)
+        data.append(product)
+        pname = "orange"
+        pclass = str(1)
+        product = {
+            'pname': pname,
+            'pclass': pclass,
+        }
+        data.append(product)
+        data.append(product)
+        return render_template("mysuperlist.html", data = data)
+    else:
+        return redirect(url_for('main'))
 
 @app.route("/allproducts", methods = ["GET"])
 def all_products():

@@ -32,48 +32,64 @@ def login():
         return render_template("failure.html")
     return redirect(url_for('main'))
 
-@app.route("/main", methods = ["GET", "POST"])
+@app.route("/main", methods = ["GET"])
 def main():
-    #name = "niv"
     return render_template("main.html", name=name)
 
+def creat_product(data, pname, pclass):
+    product = {
+        'pname': pname,
+        'pclass': pclass,
+    }
+    data.append(product)
+    return data
 
-@app.route("/mysuperlist", methods = ["GET"])
+@app.route("/mysuperlist", methods = ["GET", "POST"])
 def my_list():
+    pname = "Banana"
+    pclass = str(1)
+    data = []
+    data = creat_product(data, pname, pclass)
+    pname = "apple"
+    pclass = str(1)
+    data = creat_product(data, pname, pclass)
+    pname = "orange"
+    pclass = str(1)
+    for i in range(20):
+        data = creat_product(data, pname, pclass)
+    return render_template("mysuperlist.html", data = data)
+
+@app.route("/allproducts", methods = ["GET", "POST"])
+def all_products():
     if request.method == "GET":
-        pname = "Banana"
-        pclass = str(1)
         data = []
-        product = {
-                'pname': pname,
-                'pclass': pclass,
-            }
-        data.append(product)
-        data.append(product)
-        data.append(product)
         pname = "apple"
         pclass = str(1)
-        product = {
-            'pname': pname,
-            'pclass': pclass,
-        }
-        data.append(product)
-        data.append(product)
+        data = creat_product(data, pname, pclass)
+        pname = "banana"
+        pclass = str(1)
+        data = creat_product(data, pname, pclass)
         pname = "orange"
         pclass = str(1)
-        product = {
-            'pname': pname,
-            'pclass': pclass,
-        }
-        data.append(product)
-        data.append(product)
-        return render_template("mysuperlist.html", data = data)
+        data = creat_product(data, pname, pclass)
+        pname = "meat"
+        pclass = str(3)
+        data = creat_product(data, pname, pclass)
+        pname = "chicken"
+        pclass = str(3)
+        data = creat_product(data, pname, pclass)
+        pname = "fish"
+        pclass = str(3)
+        data = creat_product(data, pname, pclass)
+        return render_template("allproducts.html", data = data)
     else:
-        return redirect(url_for('main'))
-
-@app.route("/allproducts", methods = ["GET"])
-def all_products():
-    return render_template("failure.html")
+        searched = request.form.get("search")
+        print(searched)
+        data =[]
+        pname = "fish"
+        pclass = str(3)
+        data = creat_product(data, pname, pclass)
+        return render_template("allproducts.html", data=data)
 
 if __name__ == '__main__':
     app.run()

@@ -4,6 +4,7 @@ import DataBase
 app = Flask(__name__)
 users = DataBase.Users()
 mylist = DataBase.Mylist()
+allproducts = DataBase.Allproducts()
 app.secret_key = "SuperList"
 
 @app.route("/", methods = ["GET"])

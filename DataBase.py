@@ -21,9 +21,8 @@ class Users:
         query_str += " " + self.__password + " TEXT NOT NULL,"
         query_str += " " + self.__username + " TEXT NOT NULL,"
         query_str += " " +"PRIMARY KEY(" + id + " AUTOINCREMENT" + "));"
-        print(query_str)
         conn.execute(query_str)
-        print("Table created successfully")
+        print("Users table created successfully")
         """
         strsql = "SELECT userid FROM users " + \
                  "INNER JOIN users on user.userid = mylist.userid;"
@@ -130,7 +129,7 @@ class Mylist:
         conn = sqlite3.connect('Super_List_Data_Base.db')
         # conn.execute("drop table users")
         conn.execute(query_str)
-        print("Table created successfully")
+        print("My list table created successfully")
         conn.commit()
         conn.close()
 
@@ -219,3 +218,52 @@ class Mylist:
         return mylist
 
 
+class Allproducts:
+    """Creates database with users table includes:
+       create query
+       insert query
+       select query
+    """
+
+    def __init__(self, tablename="allproducts", product="product", locationnum ="locationnum", locationname ="locationname"):
+        self.__tablename = tablename
+        self.__product = product
+        self.__locationnum = locationnum
+        self.__locationname = locationname
+        print("Opened database successfully")
+        query_str = "CREATE TABLE IF NOT EXISTS " + tablename + "("
+        query_str += " " + self.__product + " TEXT ," + self.__locationname + " TEXT ," + self.__locationnum + " INTEGER    NOT NULL " + ");"
+        #"FOREIGN KEY(PersonID) REFERENCES Persons(PersonID)"
+        conn = sqlite3.connect('Super_List_Data_Base.db')
+        # conn.execute("drop table users")
+        conn.execute(query_str)
+        print("All products table created successfully")
+        conn.commit()
+        conn.close()
+
+    def get_table_name(self):
+        return self.__tablename
+
+    def insert_product(self, product, locationnum, locationname):
+        if not self.product_isexist(product):
+            conn = sqlite3.connect('Super_List_Data_Base.db')
+            insert_query = "INSERT INTO " + self.__tablename + " (" + self.__product + "," + self.__locationnum + "," + self.__locationname + ") VALUES"
+            insert_query += "(" + "'" + str(product) + "'" + "," + "'" + str(
+                locationnum) + "'" + "," + "'" + str(locationname) + "'" + ");"
+            print(insert_query)
+            conn.execute(insert_query)
+            conn.commit()
+            conn.close()
+            print("Record created successfully")
+        else:
+            print("This product is already in the List")
+
+    def product_isexist(self, product):
+        conn = sqlite3.connect('Super_List_Data_Base.db')
+        strsql = "SELECT * from " + self.__tablename + ";"
+        print(strsql)
+        cursor = conn.execute(strsql)
+        for row in cursor:
+            if product == row[1]:
+                return True
+        return False

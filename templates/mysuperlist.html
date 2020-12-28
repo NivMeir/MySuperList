@@ -78,7 +78,7 @@ img.logo {
     <th>Remove</th>
   </tr>
   {% for item in data %}
-    <tr onclick="myFunction(this)">
+    <tr onclick="deleterow(this)">
           <td>{{item.pname}}</td>
           <td>{{item.pclass}}</td>
           <td style="text-align:center;">Press To Remove</td>
@@ -86,7 +86,7 @@ img.logo {
   {% endfor %}
 </table>
 <script>
-function myFunction(x) {
+function deleterow(x) {
     document.getElementById("mylist").deleteRow(x.rowIndex);
 }
 </script>

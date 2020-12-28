@@ -51,9 +51,14 @@ class Users:
         else:
             print("id wasn't found")
 
-
-    def get_user_email(self):
-        return self.__email
+    def get_user_name(self, id):
+        conn = sqlite3.connect('Super_List_Data_Base.db')
+        strsql = "SELECT * from " + self.__tablename + ";"
+        print(strsql)
+        cursor = conn.execute(strsql)
+        for row in cursor:
+            if id == row[0]:
+                return row[3]
 
     def insert_user(self, email, password, username):
         if not self.email_isexist(email):
@@ -110,15 +115,16 @@ class Mylist:
        select query
     """
 
-    def __init__(self, tablename="mylist", userid = "userid", product="product", location ="location"):
+    def __init__(self, tablename="mylist", userid = "userid", product="product", locationnum ="locationnum", locationname ="locationname"):
         self.__tablename = tablename
         self.__userid = userid
         self.__product = product
-        self.__location = location
+        self.__locationnum = locationnum
+        self.__locationname = locationname
         id = str(self.__userid)
         print("Opened database successfully")
         query_str = "CREATE TABLE IF NOT EXISTS " + tablename + "(" + id + " INTEGER " + ","
-        query_str += " " + self.__product + " TEXT ," + self.__location + " INTEGER    NOT NULL " + ","
+        query_str += " " + self.__product + " TEXT ,"+ self.__locationname + " TEXT ," + self.__locationnum + " INTEGER    NOT NULL " + ","
         query_str += " " + " FOREIGN KEY ( userid ) REFERENCES users( userid ));"
         #"FOREIGN KEY(PersonID) REFERENCES Persons(PersonID)"
         conn = sqlite3.connect('Super_List_Data_Base.db')
@@ -144,11 +150,11 @@ class Mylist:
     def get_table_name(self):
         return self.__tablename
 
-    def insert_producet(self, product, location, id):
+    def insert_product(self, product, locationnum, locationname, id):
         if not self.product_isexist(product, id):
             conn = sqlite3.connect('Super_List_Data_Base.db')
-            insert_query = "INSERT INTO " + self.__tablename + " (" + self.__userid + "," + self.__product + "," + self.__location + ") VALUES"
-            insert_query += "("+ "'" + str(id) + "'" + "," + "'" + product + "'" + "," + "'" + str(location) + "'" + ");"
+            insert_query = "INSERT INTO " + self.__tablename + " (" + self.__userid + "," + self.__product + "," + self.__locationnum + "," + self.__locationname + ") VALUES"
+            insert_query += "("+ "'" + str(id) + "'" + "," + "'" + str(product) + "'" + "," + "'" + str(locationnum) + "'" + "," + "'" + str(locationname) + "'" +");"
             print(insert_query)
             conn.execute(insert_query)
             conn.commit()
@@ -167,5 +173,49 @@ class Mylist:
                 return True
         return False
 
+    def creat_product(self,data, pname, pclass, pclassnum):
+        product = {
+            'pname': pname,
+            'pclass': pclass,
+            'pclassnum':pclassnum
+        }
+        data.append(product)
+        return data
+
+    def findmin(self, mylist):
+        if len(mylist) == 0:
+            return 0
+        min = mylist[0]['pclassnum']
+        for product in mylist:
+            if min > product['pclassnum']:
+                min = product['pclassnum']
+        return min
+
+    def sortmylist(self, mylist):
+        newlist = []
+        for i in range(len(mylist)):
+            for product in mylist:
+                min = self.findmin(mylist)
+                if min == product['pclassnum']:
+                    addproduct = {
+                    'pname': product['pname'],
+                    'pclass': product['pclass']
+                    }
+                    newlist.append((addproduct))
+                    mylist.remove(product)
+        return newlist
+
+
+    def get_my_products(self, id):
+        conn = sqlite3.connect('Super_List_Data_Base.db')
+        strsql = "SELECT * from " + self.__tablename + ";"
+        print(strsql)
+        cursor = conn.execute(strsql)
+        mylist =[]
+        for row in cursor:
+            if row[0] == id:
+                mylist = self.creat_product(mylist, row[1], row[2], row[3])
+        mylist = self.sortmylist(mylist)
+        return mylist
 
 

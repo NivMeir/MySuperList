@@ -2,10 +2,14 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 import DataBase
 
 app = Flask(__name__)
+app.secret_key = "SuperList"
 users = DataBase.Users()
 mylist = DataBase.Mylist()
 allproducts = DataBase.Allproducts()
-app.secret_key = "SuperList"
+global productlist
+productlist = ["", "Fruits and Vegetables", "Drinks", "Meat, Chicken and Fish", "Bread", "Milk, Cheese and Eggs",
+               "Baking", "Snacks"]
+
 
 @app.route("/", methods = ["GET"])
 def hello():
@@ -87,37 +91,66 @@ def my_list():
         rowindex = request.form.get("rowindex")
         print(rowindex)
 
+def get_location_num(locatuonname):
+    for i in range(len(productlist)):
+        if locatuonname == productlist[i]:
+            return i
+
+#productlist = ["", "Fruits and Vegetables", "Drinks", "Meat, Chicken and Fish", "Bread", "Milk, Cheese and Eggs",
+               #"Snacks"]
 @app.route("/allproducts", methods = ["GET", "POST"])
 def all_products():
     if request.method == "GET":
-        data = []
-        pname = "apple"
-        pclass = "fruits"
-        data = creat_product(data, pname, pclass)
-        pname = "banana"
-        pclass = "fruits"
-        data = creat_product(data, pname, pclass)
-        pname = "orange"
-        pclass = "fruits"
-        data = creat_product(data, pname, pclass)
-        pname = "meat"
-        pclass = "Meat and fish"
-        data = creat_product(data, pname, pclass)
-        pname = "chicken"
-        pclass ="Meat and fish"
-        data = creat_product(data, pname, pclass)
-        pname = "fish"
-        pclass = "Meat and fish"
-        data = creat_product(data, pname, pclass)
+        """
+        allproducts.insert_product("apple", get_location_num("Fruits and Vegetables"),"Fruits and Vegetables" )
+        allproducts.insert_product("banana", get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
+        allproducts.insert_product("orange", get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
+        allproducts.insert_product("strawberry", get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
+        allproducts.insert_product("grapes", get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
+        allproducts.insert_product("watermelon", get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
+        allproducts.insert_product("potato", get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
+        allproducts.insert_product("onion", get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
+        allproducts.insert_product("tomato", get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
+        allproducts.insert_product("cucumber", get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
+        allproducts.insert_product("coca cola", get_location_num("Drinks"), "Drinks")
+        allproducts.insert_product("sprite", get_location_num("Drinks"), "Drinks")
+        allproducts.insert_product("fanta", get_location_num("Drinks"), "Drinks")
+        allproducts.insert_product("orange juice", get_location_num("Drinks"), "Drinks")
+        allproducts.insert_product("beer", get_location_num("Drinks"), "Drinks")
+        allproducts.insert_product("red wine", get_location_num("Drinks"), "Drinks")
+        allproducts.insert_product("water", get_location_num("Drinks"), "Drinks")
+        allproducts.insert_product("white wine", get_location_num("Drinks"), "Drinks")
+        allproducts.insert_product("bakala fish", get_location_num("Meat, Chicken and Fish"), "Meat, Chicken and Fish")
+        allproducts.insert_product("salmon", get_location_num("Meat, Chicken and Fish"), "Meat, Chicken and Fish")
+        allproducts.insert_product("chicken Breast", get_location_num("Meat, Chicken and Fish"), "Meat, Chicken and Fish")
+        allproducts.insert_product("chicken thighs", get_location_num("Meat, Chicken and Fish"), "Meat, Chicken and Fish")
+        allproducts.insert_product("entrecote", get_location_num("Meat, Chicken and Fish"), "Meat, Chicken and Fish")
+        allproducts.insert_product("ground beef", get_location_num("Meat, Chicken and Fish"), "Meat, Chicken and Fish")
+        allproducts.insert_product("sausage", get_location_num("Meat, Chicken and Fish"), "Meat, Chicken and Fish")
+        allproducts.insert_product("pita", get_location_num("Bread"), "Bread")
+        allproducts.insert_product("bread", get_location_num("Bread"), "Bread")
+        allproducts.insert_product("cream cheese", get_location_num("Milk, Cheese and Eggs"), "Milk, Cheese and Eggs")
+        allproducts.insert_product("yellow cheese ", get_location_num("Milk, Cheese and Eggs"), "Milk, Cheese and Eggs")
+        allproducts.insert_product("yogurt", get_location_num("Milk, Cheese and Eggs"), "Milk, Cheese and Eggs")
+        allproducts.insert_product("mozzarella cheese", get_location_num("Milk, Cheese and Eggs"), "Milk, Cheese and Eggs")
+        allproducts.insert_product("cottage cheese", get_location_num("Milk, Cheese and Eggs"), "Milk, Cheese and Eggs")
+        allproducts.insert_product("eggs", get_location_num("Milk, Cheese and Eggs"), "Milk, Cheese and Eggs")
+        allproducts.insert_product("milk", get_location_num("Milk, Cheese and Eggs"), "Milk, Cheese and Eggs")
+        allproducts.insert_product("bamba", get_location_num("Snacks"), "Snacks")
+        allproducts.insert_product("chips", get_location_num("Snacks"), "Snacks")
+        allproducts.insert_product("pretzels", get_location_num("Snacks"), "Snacks")
+        allproducts.insert_product("cornflaxes", get_location_num("Snacks"), "Snacks")"""
+        try:
+            search = request.args.get("search")
+            print(search, "123456789")
+        except:
+            print("wasn't found")
+        data = allproducts.get_products(search)
+        print(data)
         return render_template("allproducts.html", data = data)
-    else:
-        searched = request.args.get("search")
-        print(searched)
-        data =[]
-        pname = "fish"
-        pclass = str(3)
-        data = creat_product(data, pname, pclass)
-        return render_template("allproducts.html", data=data)
+
+
+
 
 if __name__ == '__main__':
     app.run(port= 80)

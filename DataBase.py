@@ -172,6 +172,7 @@ class Mylist:
                 return True
         return False
 
+
     def creat_product(self,data, pname, pclass, pclassnum):
         product = {
             'pname': pname,
@@ -189,6 +190,19 @@ class Mylist:
             if min > product['pclassnum']:
                 min = product['pclassnum']
         return min
+
+    def delete_product(self, product, userid):
+        if self.product_isexist(product, userid):
+            print(product, " 123 " , userid)
+            conn = sqlite3.connect('Super_List_Data_Base.db')
+            insert_query = "DELETE FROM mylist WHERE userid={} AND product={};".format(userid, product)
+            print(insert_query)
+            conn.execute(insert_query)
+            conn.commit()
+            conn.close()
+            print("Deleted successfully")
+        else:
+            print("This product wasn't in the List")
 
     def sortmylist(self, mylist):
         newlist = []
@@ -216,6 +230,7 @@ class Mylist:
                 mylist = self.creat_product(mylist, row[1], row[2], row[3])
         mylist = self.sortmylist(mylist)
         return mylist
+
 
 
 class Allproducts:
@@ -252,36 +267,12 @@ class Allproducts:
         data.append(product)
         return data
 
-    def get_my_products_by_subject(self, locationnum):
-        conn = sqlite3.connect('Super_List_Data_Base.db')
-        strsql = "SELECT * from " + self.__tablename + ";"
-        print(strsql)
-        cursor = conn.execute(strsql)
-        list =[]
-        print("num:", locationnum)
-        for row in cursor:
-            if row[2] == locationnum:
-                list = self.creat_product(list, row[0], row[1])
-        print(list, "list check")
-        return list
-
-    def get_my_products(self):
-        conn = sqlite3.connect('Super_List_Data_Base.db')
-        strsql = "SELECT * from " + self.__tablename + ";"
-        print(strsql)
-        cursor = conn.execute(strsql)
-        mylist =[]
-        for row in cursor:
-            mylist = self.creat_product(mylist, row[0], row[1])
-        return mylist
-
     def get_products(self, location):
         conn = sqlite3.connect('Super_List_Data_Base.db')
         strsql = "SELECT * from " + self.__tablename + ";"
         print(strsql)
         cursor = conn.execute(strsql)
-        productlist = ["", "Fruits and Vegetables", "Drinks", "Meat, Chicken and Fish", "Bread", "Milk, Cheese and Eggs",
-                       "Snacks"]
+        productlist = ["", "Fruits and Vegetables", "Drinks", "Meat, Chicken and Fish", "Bread", "Milk, Cheese and Eggs","Snacks"]
         list =[]
         print(location, "loc")
         if not location:
@@ -323,4 +314,14 @@ class Allproducts:
         for row in cursor:
             if product == row[1]:
                 return True
+        return False
+
+    def get_product_info(self, product):
+        conn = sqlite3.connect('Super_List_Data_Base.db')
+        strsql = "SELECT * from " + self.__tablename + ";"
+        print(strsql)
+        cursor = conn.execute(strsql)
+        for row in cursor:
+            if product == row[0]:
+                return (row[0], row[1], row[2])
         return False

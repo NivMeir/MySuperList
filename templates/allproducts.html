@@ -115,7 +115,7 @@ input[type=text]:focus {
     <tr onclick="myFunction(this)">
           <td>{{item.pname}}</td>
           <td>{{item.pclass}}</td>
-          <td style="text-align:center;">Press To Add</td>
+          <td style="text-align:center;"><a href = "/allproducts/insert/{{item.pname}}">Press To Add</a></td>
     </tr>
   {% endfor %}
 </table>

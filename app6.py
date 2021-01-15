@@ -7,8 +7,7 @@ users = DataBase.Users()
 mylist = DataBase.Mylist()
 allproducts = DataBase.Allproducts()
 global productlist
-productlist = ["", "Fruits and Vegetables", "Drinks", "Meat, Chicken and Fish", "Bread", "Milk, Cheese and Eggs",
-               "Baking", "Snacks"]
+productlist = ["", "Fruits and Vegetables", "Drinks", "Meat, Chicken and Fish", "Bread", "Milk, Cheese and Eggs", "Snacks"]
 
 
 @app.route("/", methods = ["GET"])
@@ -65,6 +64,20 @@ def login():
     except:
         return render_template("login.html")
 
+@app.route("/forgotpassword", methods = ["GET", "POST"])
+def newpassord():
+    if request.method == 'GET':
+        try:
+            search = request.args.get("myemail")
+            print(search, "123456789")
+            if users.email_isexist(search):
+                print("1234567890987654321")
+            else:
+                print("email do not exist")
+        except:
+            return render_template("forgotpassword.html" , check = 'False')
+        return render_template("forgotpassword.html", check = 'True')
+
 @app.route("/main", methods = ["GET"])
 def main():
     if 'userid' in session:
@@ -83,13 +96,18 @@ def creat_product(data, pname, pclass):
 @app.route("/mysuperlist", methods = ["GET", "POST"])
 def my_list():
     if request.method == 'GET':
-        mylist.insert_product("banana", 1, 'fruits', 1)
-        mylist.insert_product("apple", 1, 'fruits', 1)
         data = mylist.get_my_products(session["userid"])
         return render_template("mysuperlist.html", data=data)
     elif request.method == 'POST':
         rowindex = request.form.get("rowindex")
         print(rowindex)
+
+@app.route("/mysuperlist/delete/<product>", methods = ["GET"])
+def delete_product(product):
+    if request.method == 'GET':
+        print(product, "122243434")
+        mylist.delete_product(product, session['userid'])
+        return redirect('/mysuperlist')
 
 def get_location_num(locatuonname):
     for i in range(len(productlist)):
@@ -148,6 +166,15 @@ def all_products():
         data = allproducts.get_products(search)
         print(data)
         return render_template("allproducts.html", data = data)
+
+@app.route("/allproducts/insert/<product>", methods = ["GET", "POST"])
+def insert_product(product):
+    if request.method == 'GET':
+        print(product, "122243434")
+        info = allproducts.get_product_info(product)
+        print(info, "2323232323232")
+        mylist.insert_product(info[0], info[2], info[1], session['userid'])
+        return redirect('/allproducts')
 
 
 

@@ -195,7 +195,7 @@ class Mylist:
         if self.product_isexist(product, userid):
             print(product, " 123 " , userid)
             conn = sqlite3.connect('Super_List_Data_Base.db')
-            insert_query = "DELETE FROM mylist WHERE userid={} AND product={};".format(userid, product)
+            insert_query = "DELETE FROM mylist WHERE userid == {} AND product == '{}';".format(userid, product)
             print(insert_query)
             conn.execute(insert_query)
             conn.commit()

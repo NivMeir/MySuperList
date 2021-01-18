@@ -98,16 +98,12 @@ def my_list():
     if request.method == 'GET':
         data = mylist.get_my_products(session["userid"])
         return render_template("mysuperlist.html", data=data)
-    elif request.method == 'POST':
-        rowindex = request.form.get("rowindex")
-        print(rowindex)
 
 @app.route("/mysuperlist/delete/<product>", methods = ["GET"])
 def delete_product(product):
     if request.method == 'GET':
-        print(product, "122243434")
         mylist.delete_product(product, session['userid'])
-        return redirect('/mysuperlist')
+    return redirect('/mysuperlist')
 
 def get_location_num(locatuonname):
     for i in range(len(productlist)):

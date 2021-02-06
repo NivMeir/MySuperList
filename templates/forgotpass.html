@@ -1,0 +1,13 @@
+{% extends "layout-password.html" %}
+{% block passtemplate %}
+<form action="/forgotpass" method="post">
+  <div class="imgcontainer">
+    <img src="static\logoCyber.png" alt="Logo" class="logo2">
+  </div>
+  <div class="imgcontainer">
+    <img src="static\project logo2.jpg" alt="Logo" class="logo">
+  </div>
+<label for="email"><b>Enter Your Email</b></label>
+<input type="text" placeholder="Enter Email" name="email" required>
+<button type="submit" style="text-align:center;"><b>submit</b></button>
+{% endblock %}

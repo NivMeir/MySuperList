@@ -1,0 +1,13 @@
+{% extends "layout-password.html" %}
+{% block passtemplate %}
+<form action="/mailcode" method="post">
+  <div class="imgcontainer">
+    <img src="static\logoCyber.png" alt="Logo" class="logo2">
+  </div>
+  <div class="imgcontainer">
+    <img src="static\project logo2.jpg" alt="Logo" class="logo">
+  </div>
+<label for="code"><b>We Have Sent A Code To Your Email, Write It Here</b></label>
+<input type="text" placeholder="Enter Code" name="code" required>
+<button type="submit" style="text-align:center;"><b>submit</b></button>
+{% endblock %}

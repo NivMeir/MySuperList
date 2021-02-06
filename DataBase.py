@@ -59,6 +59,7 @@ class Users:
             if id == row[0]:
                 return row[3]
 
+
     def insert_user(self, email, password, username):
         if not self.email_isexist(email):
             conn = sqlite3.connect('Super_List_Data_Base.db')
@@ -137,7 +138,7 @@ class Mylist:
     def __str__(self):
         return "table  name is ", self.__tablename
 
-    def print_table(self, product):
+    def print_table(self):
         conn = sqlite3.connect('Super_List_Data_Base.db')
         strsql = "SELECT * from " + self.__tablename + ";"
         print(strsql)

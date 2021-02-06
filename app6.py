@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 import DataBase
+import smtplib
 
 app = Flask(__name__)
 app.secret_key = "SuperList"
@@ -8,7 +9,6 @@ mylist = DataBase.Mylist()
 allproducts = DataBase.Allproducts()
 global productlist
 productlist = ["", "Fruits and Vegetables", "Drinks", "Meat, Chicken and Fish", "Bread", "Milk, Cheese and Eggs", "Snacks"]
-
 
 @app.route("/", methods = ["GET"])
 def hello():
@@ -64,19 +64,59 @@ def login():
     except:
         return render_template("login.html")
 
-@app.route("/forgotpassword", methods = ["GET", "POST"])
-def newpassord():
+
+@app.route("/forgotpass", methods = ["GET", "POST"])
+def forgotpass():
     if request.method == 'GET':
+        return render_template("forgotpass.html")
+    elif request.method == 'POST':
         try:
-            search = request.args.get("myemail")
-            print(search, "123456789")
-            if users.email_isexist(search):
-                print("1234567890987654321")
+            email = request.form.get("email")
+            if email != None and users.email_isexist(email):
+                session["userid"] = users.get_user_id(email)
+                return redirect(url_for('mailcode'))
             else:
-                print("email do not exist")
+                flash('Email Was Not Found')
+                return render_template("forgotpass.html")
         except:
-            return render_template("forgotpassword.html" , check = 'False')
-        return render_template("forgotpassword.html", check = 'True')
+            return render_template("forgotpass.html")
+    else:
+        print("done forgot password")
+
+
+@app.route("/mailcode", methods=["GET", "POST"])
+def mailcode():
+    if request.method == 'GET':
+        return render_template("mailcode.html")
+    elif request.method == 'POST':
+        try:
+            code = request.form.get("code")
+            if code != None:
+                return redirect(url_for('changepassword'))
+            else:
+                return render_template("mailcode.html")
+        except:
+            return render_template("mailcode.html")
+    else:
+        print("done mail code")
+
+
+@app.route("/changepassword", methods=["GET", "POST"])
+def changepassword():
+    if request.method == 'GET':
+        return render_template("changepassword.html")
+    elif request.method == 'POST':
+        try:
+            newpass = request.form.get("newpass")
+            if newpass != None:
+                return redirect(url_for('main'))
+            else:
+                return render_template("changepassword.html")
+        except:
+            return render_template("changepassword.html")
+    else:
+        print("done change password")
+
 
 @app.route("/main", methods = ["GET"])
 def main():

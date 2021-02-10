@@ -194,7 +194,6 @@ class Mylist:
 
     def delete_product(self, product, userid):
         if self.product_isexist(product, userid):
-            print(product, " 123 " , userid)
             conn = sqlite3.connect('Super_List_Data_Base.db')
             insert_query = "DELETE FROM mylist WHERE userid == {} AND product == '{}';".format(userid, product)
             print(insert_query)
@@ -275,18 +274,14 @@ class Allproducts:
         cursor = conn.execute(strsql)
         productlist = ["", "Fruits and Vegetables", "Drinks", "Meat, Chicken and Fish", "Bread", "Milk, Cheese and Eggs","Snacks"]
         list =[]
-        print(location, "loc")
         if not location:
-            print(1)
             for row in cursor:
                 list = self.creat_product(list, row[0], row[1])
         elif location not in productlist:
-            print(2)
             for row in cursor:
                 if row[0] == location:
                     list = self.creat_product(list, row[0], row[1])
         else:
-            print(3)
             for row in cursor:
                 if row[1] == location:
                     list = self.creat_product(list, row[0], row[1])

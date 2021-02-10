@@ -57,7 +57,7 @@ def login():
         print(email , password)
         if not users.user_isexist(email, password):
             #flash('User was not found!')
-            return render_template("failure.html")
+            return render_template("login.html")
         userid = users.get_user_id(email)
         session['userid'] = userid
         return redirect(url_for('main'))
@@ -76,7 +76,7 @@ def forgotpass():
                 session["userid"] = users.get_user_id(email)
                 return redirect(url_for('mailcode'))
             else:
-                flash('Email Was Not Found')
+                flash("Email Was Not Found")
                 return render_template("forgotpass.html")
         except:
             return render_template("forgotpass.html")
@@ -94,6 +94,7 @@ def mailcode():
             if code != None:
                 return redirect(url_for('changepassword'))
             else:
+                flash("Wrong Code")
                 return render_template("mailcode.html")
         except:
             return render_template("mailcode.html")
@@ -108,9 +109,10 @@ def changepassword():
     elif request.method == 'POST':
         try:
             newpass = request.form.get("newpass")
-            if newpass != None:
+            if newpass != None and pass_check(newpass):
                 return redirect(url_for('main'))
             else:
+                flash("The Password Must Have 8 Chars, Letters And Numbers")
                 return render_template("changepassword.html")
         except:
             return render_template("changepassword.html")
@@ -120,6 +122,7 @@ def changepassword():
 
 @app.route("/main", methods = ["GET"])
 def main():
+    id = ''
     if 'userid' in session:
         id = session['userid']
     name = users.get_user_name(id)
@@ -145,75 +148,100 @@ def delete_product(product):
         mylist.delete_product(product, session['userid'])
     return redirect('/mysuperlist')
 
+
+
+def insertproducts():
+    allproducts.insert_product("apple", get_location_num("Fruits and Vegetables"),"Fruits and Vegetables" )
+    allproducts.insert_product("banana", get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
+    allproducts.insert_product("orange", get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
+    allproducts.insert_product("strawberry", get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
+    allproducts.insert_product("grapes", get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
+    allproducts.insert_product("watermelon", get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
+    allproducts.insert_product("potato", get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
+    allproducts.insert_product("onion", get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
+    allproducts.insert_product("tomato", get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
+    allproducts.insert_product("cucumber", get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
+    allproducts.insert_product("coca cola", get_location_num("Drinks"), "Drinks")
+    allproducts.insert_product("sprite", get_location_num("Drinks"), "Drinks")
+    allproducts.insert_product("fanta", get_location_num("Drinks"), "Drinks")
+    allproducts.insert_product("orange juice", get_location_num("Drinks"), "Drinks")
+    allproducts.insert_product("beer", get_location_num("Drinks"), "Drinks")
+    allproducts.insert_product("red wine", get_location_num("Drinks"), "Drinks")
+    allproducts.insert_product("water", get_location_num("Drinks"), "Drinks")
+    allproducts.insert_product("white wine", get_location_num("Drinks"), "Drinks")
+    allproducts.insert_product("bakala fish", get_location_num("Meat, Chicken and Fish"), "Meat, Chicken and Fish")
+    allproducts.insert_product("salmon", get_location_num("Meat, Chicken and Fish"), "Meat, Chicken and Fish")
+    allproducts.insert_product("chicken Breast", get_location_num("Meat, Chicken and Fish"), "Meat, Chicken and Fish")
+    allproducts.insert_product("chicken thighs", get_location_num("Meat, Chicken and Fish"), "Meat, Chicken and Fish")
+    allproducts.insert_product("entrecote", get_location_num("Meat, Chicken and Fish"), "Meat, Chicken and Fish")
+    allproducts.insert_product("ground beef", get_location_num("Meat, Chicken and Fish"), "Meat, Chicken and Fish")
+    allproducts.insert_product("sausage", get_location_num("Meat, Chicken and Fish"), "Meat, Chicken and Fish")
+    allproducts.insert_product("pita", get_location_num("Bread"), "Bread")
+    allproducts.insert_product("bread", get_location_num("Bread"), "Bread")
+    allproducts.insert_product("cream cheese", get_location_num("Milk, Cheese and Eggs"), "Milk, Cheese and Eggs")
+    allproducts.insert_product("yellow cheese ", get_location_num("Milk, Cheese and Eggs"), "Milk, Cheese and Eggs")
+    allproducts.insert_product("yogurt", get_location_num("Milk, Cheese and Eggs"), "Milk, Cheese and Eggs")
+    allproducts.insert_product("mozzarella cheese", get_location_num("Milk, Cheese and Eggs"), "Milk, Cheese and Eggs")
+    allproducts.insert_product("cottage cheese", get_location_num("Milk, Cheese and Eggs"), "Milk, Cheese and Eggs")
+    allproducts.insert_product("eggs", get_location_num("Milk, Cheese and Eggs"), "Milk, Cheese and Eggs")
+    allproducts.insert_product("milk", get_location_num("Milk, Cheese and Eggs"), "Milk, Cheese and Eggs")
+    allproducts.insert_product("bamba", get_location_num("Snacks"), "Snacks")
+    allproducts.insert_product("chips", get_location_num("Snacks"), "Snacks")
+    allproducts.insert_product("pretzels", get_location_num("Snacks"), "Snacks")
+    allproducts.insert_product("cornflaxes", get_location_num("Snacks"), "Snacks")
+
+@app.route("/allproductsmenu", methods = ["GET"])
+def all_products_menu():
+    if request.method == "GET":
+        return render_template("mainproducts.html")
+
+@app.route("/allproductsmenu/<department>", methods = ["GET"])
+def choose_department(department):
+    if request.method == 'GET':
+        data = allproducts.get_products(department)
+        search = ""
+        try:
+            search = request.args.get("search")
+        except:
+            print("wasn't found")
+        if search != None:
+            data = allproducts.get_products(search)
+        return render_template("allproducts.html", data=data)
+
+@app.route("/allproductsmenu/<department>/insert/<product>", methods = ["GET", "POST"])
+def insert_products(department, product):
+    if request.method == 'GET':
+        info = allproducts.get_product_info(product)
+        mylist.insert_product(info[0], info[2], info[1], session['userid'])
+        url = '/allproductsmenu/' + str(department)
+        return redirect(url)
+
 def get_location_num(locatuonname):
     for i in range(len(productlist)):
         if locatuonname == productlist[i]:
             return i
 
-#productlist = ["", "Fruits and Vegetables", "Drinks", "Meat, Chicken and Fish", "Bread", "Milk, Cheese and Eggs",
-               #"Snacks"]
+
+"""
 @app.route("/allproducts", methods = ["GET", "POST"])
 def all_products():
     if request.method == "GET":
-        """
-        allproducts.insert_product("apple", get_location_num("Fruits and Vegetables"),"Fruits and Vegetables" )
-        allproducts.insert_product("banana", get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
-        allproducts.insert_product("orange", get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
-        allproducts.insert_product("strawberry", get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
-        allproducts.insert_product("grapes", get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
-        allproducts.insert_product("watermelon", get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
-        allproducts.insert_product("potato", get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
-        allproducts.insert_product("onion", get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
-        allproducts.insert_product("tomato", get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
-        allproducts.insert_product("cucumber", get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
-        allproducts.insert_product("coca cola", get_location_num("Drinks"), "Drinks")
-        allproducts.insert_product("sprite", get_location_num("Drinks"), "Drinks")
-        allproducts.insert_product("fanta", get_location_num("Drinks"), "Drinks")
-        allproducts.insert_product("orange juice", get_location_num("Drinks"), "Drinks")
-        allproducts.insert_product("beer", get_location_num("Drinks"), "Drinks")
-        allproducts.insert_product("red wine", get_location_num("Drinks"), "Drinks")
-        allproducts.insert_product("water", get_location_num("Drinks"), "Drinks")
-        allproducts.insert_product("white wine", get_location_num("Drinks"), "Drinks")
-        allproducts.insert_product("bakala fish", get_location_num("Meat, Chicken and Fish"), "Meat, Chicken and Fish")
-        allproducts.insert_product("salmon", get_location_num("Meat, Chicken and Fish"), "Meat, Chicken and Fish")
-        allproducts.insert_product("chicken Breast", get_location_num("Meat, Chicken and Fish"), "Meat, Chicken and Fish")
-        allproducts.insert_product("chicken thighs", get_location_num("Meat, Chicken and Fish"), "Meat, Chicken and Fish")
-        allproducts.insert_product("entrecote", get_location_num("Meat, Chicken and Fish"), "Meat, Chicken and Fish")
-        allproducts.insert_product("ground beef", get_location_num("Meat, Chicken and Fish"), "Meat, Chicken and Fish")
-        allproducts.insert_product("sausage", get_location_num("Meat, Chicken and Fish"), "Meat, Chicken and Fish")
-        allproducts.insert_product("pita", get_location_num("Bread"), "Bread")
-        allproducts.insert_product("bread", get_location_num("Bread"), "Bread")
-        allproducts.insert_product("cream cheese", get_location_num("Milk, Cheese and Eggs"), "Milk, Cheese and Eggs")
-        allproducts.insert_product("yellow cheese ", get_location_num("Milk, Cheese and Eggs"), "Milk, Cheese and Eggs")
-        allproducts.insert_product("yogurt", get_location_num("Milk, Cheese and Eggs"), "Milk, Cheese and Eggs")
-        allproducts.insert_product("mozzarella cheese", get_location_num("Milk, Cheese and Eggs"), "Milk, Cheese and Eggs")
-        allproducts.insert_product("cottage cheese", get_location_num("Milk, Cheese and Eggs"), "Milk, Cheese and Eggs")
-        allproducts.insert_product("eggs", get_location_num("Milk, Cheese and Eggs"), "Milk, Cheese and Eggs")
-        allproducts.insert_product("milk", get_location_num("Milk, Cheese and Eggs"), "Milk, Cheese and Eggs")
-        allproducts.insert_product("bamba", get_location_num("Snacks"), "Snacks")
-        allproducts.insert_product("chips", get_location_num("Snacks"), "Snacks")
-        allproducts.insert_product("pretzels", get_location_num("Snacks"), "Snacks")
-        allproducts.insert_product("cornflaxes", get_location_num("Snacks"), "Snacks")"""
+        #insertproducts()
+        search = ""
         try:
             search = request.args.get("search")
-            print(search, "123456789")
         except:
             print("wasn't found")
         data = allproducts.get_products(search)
-        print(data)
         return render_template("allproducts.html", data = data)
 
 @app.route("/allproducts/insert/<product>", methods = ["GET", "POST"])
 def insert_product(product):
     if request.method == 'GET':
-        print(product, "122243434")
         info = allproducts.get_product_info(product)
-        print(info, "2323232323232")
         mylist.insert_product(info[0], info[2], info[1], session['userid'])
         return redirect('/allproducts')
-
-
-
+"""
 
 if __name__ == '__main__':
     app.run(port= 80)

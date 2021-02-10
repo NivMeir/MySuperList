@@ -74,25 +74,18 @@ img.logo {
 <table id="mylist">
   <tr>
     <th>Product Name</th>
-    <th>Class</th>
+    <th>Department</th>
     <th>Remove</th>
   </tr>
   {% for item in data %}
-    <tr onclick="deleterow(this)">
+    <tr>
           <td>{{item.pname}}</td>
           <td>{{item.pclass}}</td>
         <td style="text-align:center;"><a href = "/mysuperlist/delete/{{item.pname}}">Press To Remove</a></td>
     </tr>
   {% endfor %}
 </table>
-<!--
-<script>
-function deleterow(x) {
-    document.getElementById("mylist").deleteRow(x.rowIndex);
-    alert(item);
-}
-</script>-->
 <button type="button" class="nextbutton" style="text-align:center;" onclick="location.href='main'"><b>Back To main</b></button>
-<button type="button" class="nextbutton" style="text-align:center;" onclick="location.href='allproducts'"><b>All Products</b></button>
+<button type="button" class="nextbutton" style="text-align:center;" onclick="location.href='allproductsmenu'"><b>All Products</b></button>
 </body>
 </html>

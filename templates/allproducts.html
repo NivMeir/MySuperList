@@ -108,23 +108,18 @@ input[type=text]:focus {
 <table id="productlist">
   <tr>
     <th>Product Name</th>
-    <th>Class</th>
+    <th>Department</th>
     <th>Add</th>
   </tr>
   {% for item in data %}
-    <tr onclick="myFunction(this)">
+    <tr>
           <td>{{item.pname}}</td>
           <td>{{item.pclass}}</td>
-          <td style="text-align:center;"><a href = "/allproducts/insert/{{item.pname}}">Press To Add</a></td>
+          <td style="text-align:center;"><a href ="/allproductsmenu/{{item.pclass}}/insert/{{item.pname}}">Press To Add</a></td>
     </tr>
   {% endfor %}
 </table>
-<script>
-function myFunction(x) {
-    document.getElementById("mylist").deleteRow(x.rowIndex);
-}
-</script>
-<button type="button" class="nextbutton" style="text-align:center;" onclick="location.href='main'"><b>Back To main</b></button>
-<button type="button" class="nextbutton" style="text-align:center;" onclick="location.href='mysuperlist'"><b>My Super List</b></button>
+<button type="button" class="nextbutton" style="text-align:center;" onclick="location.href='/main'"><b>Back To main</b></button>
+<button type="button" class="nextbutton" style="text-align:center;" onclick="location.href='/mysuperlist'"><b>My Super List</b></button>
 </body>
 </html>

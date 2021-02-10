@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" content="width=device-width, initial-scale=1">
+    <title>Super List</title>
+    <link rel = icon href="static\favicon.ico" type="image/x-icon">
+    <style>
+    body {font-family: Arial, Helvetica, sans-serif;}
+
+    button {
+      background-color: #99CDFF;
+      color: white;
+      font-size: 17px;
+      padding: 30px 20px;
+      border: none;
+      cursor: pointer;
+      width: 20%;
+      right: 0;
+      margin-top: 100px;
+      margin-bottom: 50px;
+      margin-right: 100px;
+      margin-left: 60px;
+    }
+
+    button:hover {
+      opacity: 0.8;
+    }
+
+    .imgcontainer {
+      text-align: center;
+      margin: 24px 0 12px 0;
+    }
+
+    img.logo {
+      width: 20%;
+    }
+
+        /* Add a black background color to the top navigation */
+    .topnav {
+      background-color: #99CDFF;
+      /*width: 100%;*/
+      overflow: hidden;
+      float: none;
+      position: sticky;
+    }
+
+    /* Style the links inside the navigation bar */
+    .topnav a {
+      float: left;
+      color: white;
+      padding: 14px 16px;
+      text-decoration: none;
+      text-align: center;
+      font-size: 17px;
+      width: 33%;
+    }
+
+ </style>
+</head>
+<body>
+    <div class="topnav">
+    <a class="active" style="font-family:verdana;"><b>Choose The Department You Want!</b></a>
+    </div>
+    <button type="button" class="button" style="text-align:center;" onclick="location.href='/allproductsmenu/Fruits and Vegetables'">Fruits and Vegetables</button>
+    <button type="button" class="button" style="text-align:center;" onclick="location.href='/allproductsmenu/Drinks'">Drinks</button>
+    <button type="button" class="button" style="text-align:center;" onclick="location.href='/allproductsmenu/Meat, Chicken and Fish'">Meat, Chicken and Fish</button>
+    <div class="imgcontainer">
+        <img src="static\project logo2.jpg" alt="Logo" class="logo">
+    </div>
+    <button type="button" class="button" style="text-align:center;" onclick="location.href='/allproductsmenu/Bread'">Bread</button>
+    <button type="button" class="button" style="text-align:center;" onclick="location.href='/allproductsmenu/Milk, Cheese and Eggs'">Milk, Cheese and Eggs</button>
+    <button type="button" class="button" style="text-align:center;" onclick="location.href='/allproductsmenu/Snacks'">Snacks</button>
+</body>
+</html>

@@ -70,6 +70,14 @@ span.psw {
      width: 100%;
   }
 }
+
+.alert {
+  padding: 20px;
+  background-color: #f44336; /* Red */
+  color: white;
+  margin-bottom: 15px;
+  width = 25%
+}
 </style>
 </head>
 <body>
@@ -80,6 +88,16 @@ span.psw {
   <div class="imgcontainer">
     <img src="static\project logo2.jpg" alt="Logo" class="logo">
   </div>
+
+  {% with messages = get_flashed_messages() %}
+	{% if messages %}
+		{% for message in messages %}
+		  <div class="alert" role="alert">
+			{{message}}
+		  </div>
+		{% endfor %}
+	{% endif %}
+{% endwith %}
 
   <div class="container">
     <label for="email"><b>Email</b></label>

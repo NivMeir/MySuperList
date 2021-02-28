@@ -72,6 +72,14 @@ span.psw {
      width: 100%;
   }
 }
+
+.alert {
+  padding: 20px;
+  background-color: #f44336; /* Red */
+  color: white;
+  margin-bottom: 15px;
+  width = 25%
+}
 </style>
 </head>
 
@@ -84,12 +92,22 @@ span.psw {
     <img src="static\project logo2.jpg" alt="Logo" class="logo">
   </div>
 
+  {% with messages = get_flashed_messages() %}
+	{% if messages %}
+		{% for message in messages %}
+		  <div class="alert" role="alert">
+			{{message}}
+		  </div>
+		{% endfor %}
+	{% endif %}
+{% endwith %}
+
   <div class="container">
     <label for="name"><b>Username</b></label>
     <input type="text" placeholder="Enter Username" name="name" required>
 
     <label for="password"><b>Password</b></label>
-    <input type="password" placeholder="Enter Password" name="password" required>
+    <input type="text" placeholder="Enter Password, The Password Must Have 8 Chars, Letters And Numbers" name="password" required>
 
     <label for="email"><b>Email</b></label>
     <input type="email" placeholder="Enter Email" name="email" required>

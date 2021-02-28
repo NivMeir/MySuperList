@@ -6,6 +6,8 @@
     <link rel = icon href="static\favicon.ico" type="image/x-icon">
 </head>
 <style>
+body {font-family: Arial, Helvetica, sans-serif;}
+
 #mylist {
   font-family: Arial, Helvetica, sans-serif;
   border-collapse: collapse;
@@ -66,21 +68,42 @@ img.logo {
   border-radius: 50%;
 }
 
+.alert {
+  padding: 20px;
+  background-color: #05EF71; /* green */
+  color: white;
+  margin-bottom: 15px;
+  width = 25%
+}
+
 </style>
 <body>
 <div class="imgcontainer">
     <img src="static\project logo2.jpg" alt="Logo" class="logo">
   </div>
+
+{% with messages = get_flashed_messages() %}
+	{% if messages %}
+		{% for message in messages %}
+		  <div class="alert" role="alert">
+			{{message}}
+		  </div>
+		{% endfor %}
+	{% endif %}
+{% endwith %}
+
 <table id="mylist">
   <tr>
     <th>Product Name</th>
     <th>Department</th>
+    <th>Shelf</th>
     <th>Remove</th>
   </tr>
   {% for item in data %}
     <tr>
           <td>{{item.pname}}</td>
           <td>{{item.pclass}}</td>
+          <td>{{item.shelf}}</td>
         <td style="text-align:center;"><a href = "/mysuperlist/delete/{{item.pname}}">Press To Remove</a></td>
     </tr>
   {% endfor %}

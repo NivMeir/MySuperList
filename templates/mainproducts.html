@@ -26,6 +26,18 @@
       opacity: 0.8;
     }
 
+    .nextbutton {
+      position: -webkit-sticky;
+      position: sticky;
+      bottom: 0;
+      padding: 50px;
+      font-size: 20px;
+      width: auto;
+      margin: 0 auto;
+      padding: 10px 18px;
+      background-color: #99CDFF;
+    }
+
     .imgcontainer {
       text-align: center;
       margin: 24px 0 12px 0;
@@ -61,14 +73,16 @@
     <div class="topnav">
     <a class="active" style="font-family:verdana;"><b>Choose The Department You Want!</b></a>
     </div>
-    <button type="button" class="button" style="text-align:center;" onclick="location.href='/allproductsmenu/Fruits and Vegetables'">Fruits and Vegetables</button>
-    <button type="button" class="button" style="text-align:center;" onclick="location.href='/allproductsmenu/Drinks'">Drinks</button>
-    <button type="button" class="button" style="text-align:center;" onclick="location.href='/allproductsmenu/Meat, Chicken and Fish'">Meat, Chicken and Fish</button>
     <div class="imgcontainer">
         <img src="static\project logo2.jpg" alt="Logo" class="logo">
     </div>
+
+    <button type="button" class="button" style="text-align:center;" onclick="location.href='/allproductsmenu/Fruits and Vegetables'">Fruits and Vegetables</button>
+    <button type="button" class="button" style="text-align:center;" onclick="location.href='/allproductsmenu/Drinks'">Drinks</button>
+    <button type="button" class="button" style="text-align:center;" onclick="location.href='/allproductsmenu/Meat, Chicken and Fish'">Meat, Chicken and Fish</button>
     <button type="button" class="button" style="text-align:center;" onclick="location.href='/allproductsmenu/Bread'">Bread</button>
     <button type="button" class="button" style="text-align:center;" onclick="location.href='/allproductsmenu/Milk, Cheese and Eggs'">Milk, Cheese and Eggs</button>
     <button type="button" class="button" style="text-align:center;" onclick="location.href='/allproductsmenu/Snacks'">Snacks</button>
+    <button type="button" class="nextbutton" style="text-align:center;" onclick="location.href='/main'"><b>Back To main</b></button>
 </body>
 </html>

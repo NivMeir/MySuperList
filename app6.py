@@ -1,9 +1,10 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 import DataBase
-import smtplib
+import emails
 
 app = Flask(__name__)
 app.secret_key = "SuperList"
+send_email = emails.Emails()
 users = DataBase.Users()
 mylist = DataBase.Mylist()
 allproducts = DataBase.Allproducts()
@@ -12,11 +13,22 @@ productlist = ["", "Fruits and Vegetables", "Drinks", "Meat, Chicken and Fish", 
 
 @app.route("/", methods = ["GET"])
 def hello():
+    """
+    send the login page to the user
+    rtype: html page
+    """
     return render_template("login.html")
 
 
 #must be more then 8 chars, letters and numbers
 def pass_check(password):
+    """
+    check the password, it has to be more then 8 chars, letters and numbers
+    param password: the user password that he want to register with
+    type: string
+    return: checks that the password received is conditional
+    rtype: boolean
+    """
     if len(password) < 8:
         return False
     letter = False
@@ -31,6 +43,15 @@ def pass_check(password):
 
 @app.route("/register", methods = ["GET", "POST"])
 def register():
+    """
+    GET:
+    retrun the register page
+    rtype: html page
+    POST:
+    get the user information and write them at the database if they meet the requirements
+    return the register page if the information from the user is incorrect, otherwise return the path to the next page
+    rtype: html page or url path
+    """
     if request.method == 'GET':
         return render_template("register.html")
     else:
@@ -39,8 +60,15 @@ def register():
             password = request.form.get("password")
             email = request.form.get("email")
             print(name , password , email)
-            if users.email_isexist(email) or not pass_check(password):
-                return render_template("failure.html")
+            if users.email_isexist(email):
+                flash("The Email Is Already In The System")
+                return render_template("register.html")
+            elif not pass_check(password):
+                flash("The Password Must Have 8 Chars, Letters And Numbers")
+                return render_template("register.html")
+            elif len(name) > 10 or len(name) < 2:
+                flash("Your Name Has To Be Between 2 Chars To 10!")
+                return render_template("register.html")
             users.insert_user(email, password, name)
             userid = users.get_user_id(email)
             print(userid)
@@ -51,12 +79,17 @@ def register():
 
 @app.route("/login", methods = ["POST"])
 def login():
+    """
+        get the user information and check them at the database if they meet the requirements
+        return the login page if the information from the user is incorrect, otherwise return the path to the next page
+        rtype: html page or url path
+        """
     try:
         email = request.form.get("email")
         password = request.form.get("password")
         print(email , password)
         if not users.user_isexist(email, password):
-            #flash('User was not found!')
+            flash('User was not found!')
             return render_template("login.html")
         userid = users.get_user_id(email)
         session['userid'] = userid
@@ -67,6 +100,15 @@ def login():
 
 @app.route("/forgotpass", methods = ["GET", "POST"])
 def forgotpass():
+    """
+        GET:
+        retrun the forgotpass page
+        rtype: html page
+        POST:
+        get the user's email and check it at the database if it exist, and then send a code to their email
+        return the forgotpass page if the information from the user is incorrect, otherwise return the path to the next page
+        rtype: html page or url path
+        """
     if request.method == 'GET':
         return render_template("forgotpass.html")
     elif request.method == 'POST':
@@ -74,6 +116,10 @@ def forgotpass():
             email = request.form.get("email")
             if email != None and users.email_isexist(email):
                 session["userid"] = users.get_user_id(email)
+                username = users.get_user_name(session["userid"])
+                code = send_email.codegenerator(username)
+                session["code"] = code
+                send_email.send_email(email, code)
                 return redirect(url_for('mailcode'))
             else:
                 flash("Email Was Not Found")
@@ -86,12 +132,21 @@ def forgotpass():
 
 @app.route("/mailcode", methods=["GET", "POST"])
 def mailcode():
+    """
+    GET:
+    retrun the mailcode page
+    rtype: html page
+    POST:
+    get the user's code and check it
+    return the forgotpass page if the code from the user is incorrect, otherwise return the path to the next page
+    rtype: html page or url path
+    """
     if request.method == 'GET':
         return render_template("mailcode.html")
     elif request.method == 'POST':
         try:
             code = request.form.get("code")
-            if code != None:
+            if code != None and code == session["code"]:
                 return redirect(url_for('changepassword'))
             else:
                 flash("Wrong Code")
@@ -104,17 +159,29 @@ def mailcode():
 
 @app.route("/changepassword", methods=["GET", "POST"])
 def changepassword():
+    """
+    GET:
+    retrun the changepassword page
+    rtype: html page
+    POST:
+    get the user's new password, if it meet the requirements the password is changing at the database
+    return the changepassword page if the password from the user is incorrect, otherwise return the path to the next page
+    rtype: html page or url path
+    """
     if request.method == 'GET':
         return render_template("changepassword.html")
     elif request.method == 'POST':
         try:
             newpass = request.form.get("newpass")
+            email = users.get_user_email(session["userid"])
             if newpass != None and pass_check(newpass):
+                users.update_password(email, newpass)
                 return redirect(url_for('main'))
             else:
                 flash("The Password Must Have 8 Chars, Letters And Numbers")
                 return render_template("changepassword.html")
         except:
+            print("something went wrong")
             return render_template("changepassword.html")
     else:
         print("done change password")
@@ -146,53 +213,55 @@ def my_list():
 def delete_product(product):
     if request.method == 'GET':
         mylist.delete_product(product, session['userid'])
+        flash(product + " Has Been Deleted From Your Super List")
     return redirect('/mysuperlist')
 
 
 
 def insertproducts():
-    allproducts.insert_product("apple", get_location_num("Fruits and Vegetables"),"Fruits and Vegetables" )
-    allproducts.insert_product("banana", get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
-    allproducts.insert_product("orange", get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
-    allproducts.insert_product("strawberry", get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
-    allproducts.insert_product("grapes", get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
-    allproducts.insert_product("watermelon", get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
-    allproducts.insert_product("potato", get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
-    allproducts.insert_product("onion", get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
-    allproducts.insert_product("tomato", get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
-    allproducts.insert_product("cucumber", get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
-    allproducts.insert_product("coca cola", get_location_num("Drinks"), "Drinks")
-    allproducts.insert_product("sprite", get_location_num("Drinks"), "Drinks")
-    allproducts.insert_product("fanta", get_location_num("Drinks"), "Drinks")
-    allproducts.insert_product("orange juice", get_location_num("Drinks"), "Drinks")
-    allproducts.insert_product("beer", get_location_num("Drinks"), "Drinks")
-    allproducts.insert_product("red wine", get_location_num("Drinks"), "Drinks")
-    allproducts.insert_product("water", get_location_num("Drinks"), "Drinks")
-    allproducts.insert_product("white wine", get_location_num("Drinks"), "Drinks")
-    allproducts.insert_product("bakala fish", get_location_num("Meat, Chicken and Fish"), "Meat, Chicken and Fish")
-    allproducts.insert_product("salmon", get_location_num("Meat, Chicken and Fish"), "Meat, Chicken and Fish")
-    allproducts.insert_product("chicken Breast", get_location_num("Meat, Chicken and Fish"), "Meat, Chicken and Fish")
-    allproducts.insert_product("chicken thighs", get_location_num("Meat, Chicken and Fish"), "Meat, Chicken and Fish")
-    allproducts.insert_product("entrecote", get_location_num("Meat, Chicken and Fish"), "Meat, Chicken and Fish")
-    allproducts.insert_product("ground beef", get_location_num("Meat, Chicken and Fish"), "Meat, Chicken and Fish")
-    allproducts.insert_product("sausage", get_location_num("Meat, Chicken and Fish"), "Meat, Chicken and Fish")
-    allproducts.insert_product("pita", get_location_num("Bread"), "Bread")
-    allproducts.insert_product("bread", get_location_num("Bread"), "Bread")
-    allproducts.insert_product("cream cheese", get_location_num("Milk, Cheese and Eggs"), "Milk, Cheese and Eggs")
-    allproducts.insert_product("yellow cheese ", get_location_num("Milk, Cheese and Eggs"), "Milk, Cheese and Eggs")
-    allproducts.insert_product("yogurt", get_location_num("Milk, Cheese and Eggs"), "Milk, Cheese and Eggs")
-    allproducts.insert_product("mozzarella cheese", get_location_num("Milk, Cheese and Eggs"), "Milk, Cheese and Eggs")
-    allproducts.insert_product("cottage cheese", get_location_num("Milk, Cheese and Eggs"), "Milk, Cheese and Eggs")
-    allproducts.insert_product("eggs", get_location_num("Milk, Cheese and Eggs"), "Milk, Cheese and Eggs")
-    allproducts.insert_product("milk", get_location_num("Milk, Cheese and Eggs"), "Milk, Cheese and Eggs")
-    allproducts.insert_product("bamba", get_location_num("Snacks"), "Snacks")
-    allproducts.insert_product("chips", get_location_num("Snacks"), "Snacks")
-    allproducts.insert_product("pretzels", get_location_num("Snacks"), "Snacks")
-    allproducts.insert_product("cornflaxes", get_location_num("Snacks"), "Snacks")
+    allproducts.insert_product("apple", 'A', get_location_num("Fruits and Vegetables"),"Fruits and Vegetables" )
+    allproducts.insert_product("banana", 'A',get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
+    allproducts.insert_product("orange", 'A',get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
+    allproducts.insert_product("strawberry", 'B',get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
+    allproducts.insert_product("grapes", 'B',get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
+    allproducts.insert_product("watermelon", 'B',get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
+    allproducts.insert_product("potato", 'C',get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
+    allproducts.insert_product("onion", 'C',get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
+    allproducts.insert_product("tomato", 'C',get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
+    allproducts.insert_product("cucumber", 'C',get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
+    allproducts.insert_product("coca cola", 'A',get_location_num("Drinks"), "Drinks")
+    allproducts.insert_product("sprite", 'A',get_location_num("Drinks"), "Drinks")
+    allproducts.insert_product("fanta", 'B',get_location_num("Drinks"), "Drinks")
+    allproducts.insert_product("orange juice", 'B',get_location_num("Drinks"), "Drinks")
+    allproducts.insert_product("beer", 'C',get_location_num("Drinks"), "Drinks")
+    allproducts.insert_product("red wine", 'C',get_location_num("Drinks"), "Drinks")
+    allproducts.insert_product("water", 'D',get_location_num("Drinks"), "Drinks")
+    allproducts.insert_product("white wine", 'D',get_location_num("Drinks"), "Drinks")
+    allproducts.insert_product("bakala fish", 'A',get_location_num("Meat, Chicken and Fish"), "Meat, Chicken and Fish")
+    allproducts.insert_product("salmon", 'A',get_location_num("Meat, Chicken and Fish"), "Meat, Chicken and Fish")
+    allproducts.insert_product("chicken Breast", 'A',get_location_num("Meat, Chicken and Fish"), "Meat, Chicken and Fish")
+    allproducts.insert_product("chicken thighs", 'B',get_location_num("Meat, Chicken and Fish"), "Meat, Chicken and Fish")
+    allproducts.insert_product("entrecote", 'B',get_location_num("Meat, Chicken and Fish"), "Meat, Chicken and Fish")
+    allproducts.insert_product("ground beef", 'B',get_location_num("Meat, Chicken and Fish"), "Meat, Chicken and Fish")
+    allproducts.insert_product("sausage", 'B',get_location_num("Meat, Chicken and Fish"), "Meat, Chicken and Fish")
+    allproducts.insert_product("pita", 'A',get_location_num("Bread"), "Bread")
+    allproducts.insert_product("bread", 'A',get_location_num("Bread"), "Bread")
+    allproducts.insert_product("cream cheese", 'A',get_location_num("Milk, Cheese and Eggs"), "Milk, Cheese and Eggs")
+    allproducts.insert_product("yellow cheese", 'A',get_location_num("Milk, Cheese and Eggs"), "Milk, Cheese and Eggs")
+    allproducts.insert_product("yogurt", 'B',get_location_num("Milk, Cheese and Eggs"), "Milk, Cheese and Eggs")
+    allproducts.insert_product("mozzarella cheese", 'B',get_location_num("Milk, Cheese and Eggs"), "Milk, Cheese and Eggs")
+    allproducts.insert_product("cottage cheese", 'C',get_location_num("Milk, Cheese and Eggs"), "Milk, Cheese and Eggs")
+    allproducts.insert_product("eggs", 'C',get_location_num("Milk, Cheese and Eggs"), "Milk, Cheese and Eggs")
+    allproducts.insert_product("milk", 'C',get_location_num("Milk, Cheese and Eggs"), "Milk, Cheese and Eggs")
+    allproducts.insert_product("bamba", 'A',get_location_num("Snacks"), "Snacks")
+    allproducts.insert_product("chips", 'A',get_location_num("Snacks"), "Snacks")
+    allproducts.insert_product("pretzels", 'B',get_location_num("Snacks"), "Snacks")
+    allproducts.insert_product("cornflaxes", 'B',get_location_num("Snacks"), "Snacks")
 
 @app.route("/allproductsmenu", methods = ["GET"])
 def all_products_menu():
     if request.method == "GET":
+        #insertproducts()
         return render_template("mainproducts.html")
 
 @app.route("/allproductsmenu/<department>", methods = ["GET"])
@@ -203,7 +272,7 @@ def choose_department(department):
         try:
             search = request.args.get("search")
         except:
-            print("wasn't found")
+            print("Wasn't Found")
         if search != None:
             data = allproducts.get_products(search)
         return render_template("allproducts.html", data=data)
@@ -212,7 +281,12 @@ def choose_department(department):
 def insert_products(department, product):
     if request.method == 'GET':
         info = allproducts.get_product_info(product)
-        mylist.insert_product(info[0], info[2], info[1], session['userid'])
+        print(info)
+        if info != False:
+            mylist.insert_product(info[0], info[2], info[1], info[3], session['userid'])
+            flash(product + " Has Been Added To Your Super List")
+        else:
+            print("the product was not found")
         url = '/allproductsmenu/' + str(department)
         return redirect(url)
 

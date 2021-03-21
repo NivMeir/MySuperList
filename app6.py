@@ -1,10 +1,16 @@
+"""
+Niv Meir
+python 3.8
+"""
+
+
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 import DataBase
-import emails
+import emails_and_encryption
 
 app = Flask(__name__)
 app.secret_key = "SuperList"
-send_email = emails.Emails()
+extra = emails_and_encryption.Extras()
 users = DataBase.Users()
 mylist = DataBase.Mylist()
 allproducts = DataBase.Allproducts()
@@ -12,7 +18,7 @@ global productlist
 productlist = ["", "Fruits and Vegetables", "Drinks", "Meat, Chicken and Fish", "Bread", "Milk, Cheese and Eggs", "Snacks"]
 
 @app.route("/", methods = ["GET"])
-def hello():
+def start():
     """
     send the login page to the user
     rtype: html page
@@ -69,7 +75,9 @@ def register():
             elif len(name) > 10 or len(name) < 2:
                 flash("Your Name Has To Be Between 2 Chars To 10!")
                 return render_template("register.html")
-            users.insert_user(email, password, name)
+            encryptpass = extra.encrypt(password)
+            print("############ ",encryptpass)
+            users.insert_user(email, encryptpass, name)
             userid = users.get_user_id(email)
             print(userid)
             session['userid'] = userid
@@ -88,6 +96,7 @@ def login():
         email = request.form.get("email")
         password = request.form.get("password")
         print(email , password)
+        print("!@#",not users.user_isexist(email, password))
         if not users.user_isexist(email, password):
             flash('User was not found!')
             return render_template("login.html")
@@ -116,10 +125,9 @@ def forgotpass():
             email = request.form.get("email")
             if email != None and users.email_isexist(email):
                 session["userid"] = users.get_user_id(email)
-                username = users.get_user_name(session["userid"])
-                code = send_email.codegenerator(username)
+                code = extra.codegenerator()
                 session["code"] = code
-                send_email.send_email(email, code)
+                extra.send_email(email, code)
                 return redirect(url_for('mailcode'))
             else:
                 flash("Email Was Not Found")
@@ -175,7 +183,8 @@ def changepassword():
             newpass = request.form.get("newpass")
             email = users.get_user_email(session["userid"])
             if newpass != None and pass_check(newpass):
-                users.update_password(email, newpass)
+                encryptpass = extra.encrypt(newpass)
+                users.update_password(email, encryptpass)
                 return redirect(url_for('main'))
             else:
                 flash("The Password Must Have 8 Chars, Letters And Numbers")
@@ -189,42 +198,53 @@ def changepassword():
 
 @app.route("/main", methods = ["GET"])
 def main():
+    """
+    retrun the main page
+    rtype: html page
+    """
     id = ''
     if 'userid' in session:
         id = session['userid']
     name = users.get_user_name(id)
     return render_template("main.html", name=name)
 
-def creat_product(data, pname, pclass):
-    product = {
-        'pname': pname,
-        'pclass': pclass,
-    }
-    data.append(product)
-    return data
 
-@app.route("/mysuperlist", methods = ["GET", "POST"])
+@app.route("/mysuperlist", methods = ["GET"])
 def my_list():
+    """
+    retrun the mysuperlist page with the users list
+    rtype: html page
+    """
     if request.method == 'GET':
         data = mylist.get_my_products(session["userid"])
         return render_template("mysuperlist.html", data=data)
 
 @app.route("/mysuperlist/delete/<product>", methods = ["GET"])
 def delete_product(product):
+    """
+    param: the product's name we want to delete
+    ptype: string
+
+    return the url of mysuperlist page after deleting a product
+    rtype: url
+    """
     if request.method == 'GET':
         mylist.delete_product(product, session['userid'])
         flash(product + " Has Been Deleted From Your Super List")
     return redirect('/mysuperlist')
 
-
+def get_location_num(locatuonname):
+    for i in range(len(productlist)):
+        if locatuonname == productlist[i]:
+            return i
 
 def insertproducts():
     allproducts.insert_product("apple", 'A', get_location_num("Fruits and Vegetables"),"Fruits and Vegetables" )
-    allproducts.insert_product("banana", 'A',get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
-    allproducts.insert_product("orange", 'A',get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
-    allproducts.insert_product("strawberry", 'B',get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
-    allproducts.insert_product("grapes", 'B',get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
-    allproducts.insert_product("watermelon", 'B',get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
+    allproducts.insert_product("banana", 'A', get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
+    allproducts.insert_product("orange", 'A', get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
+    allproducts.insert_product("strawberry", 'B', get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
+    allproducts.insert_product("grapes", 'B', get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
+    allproducts.insert_product("watermelon", 'B', get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
     allproducts.insert_product("potato", 'C',get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
     allproducts.insert_product("onion", 'C',get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
     allproducts.insert_product("tomato", 'C',get_location_num("Fruits and Vegetables"), "Fruits and Vegetables")
@@ -260,12 +280,24 @@ def insertproducts():
 
 @app.route("/allproductsmenu", methods = ["GET"])
 def all_products_menu():
+    """
+    retrun the mainproducts page with the possible departments
+    rtype: html page
+    """
     if request.method == "GET":
-        #insertproducts()
+        if allproducts.isempty():
+            insertproducts()
         return render_template("mainproducts.html")
 
 @app.route("/allproductsmenu/<department>", methods = ["GET"])
 def choose_department(department):
+    """
+   param: the department's name the user chose
+   ptype: string
+
+   return the allproducts page with the department the user chose or with the product the user searched for
+   rtype: html page
+   """
     if request.method == 'GET':
         data = allproducts.get_products(department)
         search = ""
@@ -279,6 +311,16 @@ def choose_department(department):
 
 @app.route("/allproductsmenu/<department>/insert/<product>", methods = ["GET", "POST"])
 def insert_products(department, product):
+    """
+       param: the department's name the user chose
+       ptype: string
+
+       param: the product he want to add to his list
+       ptype: string
+
+       return the url of allproductsmenu by the chosen department page after adding thr chosen product
+       rtype: url
+       """
     if request.method == 'GET':
         info = allproducts.get_product_info(product)
         print(info)
@@ -290,10 +332,7 @@ def insert_products(department, product):
         url = '/allproductsmenu/' + str(department)
         return redirect(url)
 
-def get_location_num(locatuonname):
-    for i in range(len(productlist)):
-        if locatuonname == productlist[i]:
-            return i
+
 
 
 """
@@ -318,5 +357,5 @@ def insert_product(product):
 """
 
 if __name__ == '__main__':
-    app.run(port= 80)
+    app.run( port= 80)
     #host='0.0.0.0' להתחברות ממכשירים אחרים אחרת לפחות מהפקודה למעלה

@@ -1,4 +1,6 @@
 import sqlite3
+import emails_and_encryption
+passcheck = emails_and_encryption.Extras()
 
 class Users:
     """Creates database with users table includes:
@@ -106,7 +108,7 @@ class Users:
         print(strsql)
         cursor = conn.execute(strsql)
         for row in cursor:
-            if email == row[1] and password == row[2]:
+            if email == row[1] and passcheck.encryptiontest(row[2], password):
                 return True
         return False
 
@@ -400,3 +402,13 @@ class Allproducts:
             if product == row[0]:
                 return (row[0], row[1], row[2], row[3])
         return False
+
+    def isempty(self):
+        conn = sqlite3.connect('Super_List_Data_Base.db')
+        strsql = "SELECT * from " + self.__tablename + ";"
+        print(strsql)
+        lines = 0
+        cursor = conn.execute(strsql)
+        for row in cursor:
+            lines += 1
+        return lines == 0

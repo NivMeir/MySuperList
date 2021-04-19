@@ -7,10 +7,12 @@ python 3.8
 from flask import Flask, render_template, request, redirect, url_for, flash, session
 import DataBase
 import emails_and_encryption
+import super_maps
 
 app = Flask(__name__)
 app.secret_key = "SuperList"
 extra = emails_and_encryption.Extras()
+mymap = super_maps.Maps()
 users = DataBase.Users()
 mylist = DataBase.Mylist()
 allproducts = DataBase.Allproducts()
@@ -65,7 +67,6 @@ def register():
             name = request.form.get("name")
             password = request.form.get("password")
             email = request.form.get("email")
-            print(name , password , email)
             if users.email_isexist(email):
                 flash("The Email Is Already In The System")
                 return render_template("register.html")
@@ -76,10 +77,8 @@ def register():
                 flash("Your Name Has To Be Between 2 Chars To 10!")
                 return render_template("register.html")
             encryptpass = extra.encrypt(password)
-            print("############ ",encryptpass)
             users.insert_user(email, encryptpass, name)
             userid = users.get_user_id(email)
-            print(userid)
             session['userid'] = userid
             return redirect(url_for('main'))
         except:
@@ -95,8 +94,8 @@ def login():
     try:
         email = request.form.get("email")
         password = request.form.get("password")
-        print(email , password)
-        print("!@#",not users.user_isexist(email, password))
+        #email = "nivmeir2804@gmail.com"
+        #password = "hamagniv28"
         if not users.user_isexist(email, password):
             flash('User was not found!')
             return render_template("login.html")
@@ -165,6 +164,7 @@ def mailcode():
         print("done mail code")
 
 
+
 @app.route("/changepassword", methods=["GET", "POST"])
 def changepassword():
     """
@@ -208,6 +208,23 @@ def main():
     name = users.get_user_name(id)
     return render_template("main.html", name=name)
 
+
+@app.route("/usermap", methods = ["GET"])
+def showmap():
+    """
+    retrun the usermap page with the user map
+    rtype: html page
+    """
+    import random
+    if request.method == 'GET':
+        place = mylist.get_place(session["userid"])
+        filename = "/" + str(session["userid"])+ str(random.randint(1000, 9999)) + ".jpg"
+        print("#filename " + filename)
+        mymap.draw_arrows(place, filename)
+        path = "user_maps" + filename
+        web_param = {'path': path, 'imgheight': 500, 'imgwidth': 890}
+        #path = r"static\user_maps" + filename
+        return render_template("usermap.html", **web_param)
 
 @app.route("/mysuperlist", methods = ["GET"])
 def my_list():
@@ -323,7 +340,6 @@ def insert_products(department, product):
        """
     if request.method == 'GET':
         info = allproducts.get_product_info(product)
-        print(info)
         if info != False:
             mylist.insert_product(info[0], info[2], info[1], info[3], session['userid'])
             flash(product + " Has Been Added To Your Super List")
@@ -333,29 +349,6 @@ def insert_products(department, product):
         return redirect(url)
 
 
-
-
-"""
-@app.route("/allproducts", methods = ["GET", "POST"])
-def all_products():
-    if request.method == "GET":
-        #insertproducts()
-        search = ""
-        try:
-            search = request.args.get("search")
-        except:
-            print("wasn't found")
-        data = allproducts.get_products(search)
-        return render_template("allproducts.html", data = data)
-
-@app.route("/allproducts/insert/<product>", methods = ["GET", "POST"])
-def insert_product(product):
-    if request.method == 'GET':
-        info = allproducts.get_product_info(product)
-        mylist.insert_product(info[0], info[2], info[1], session['userid'])
-        return redirect('/allproducts')
-"""
-
 if __name__ == '__main__':
-    app.run( port= 80)
+    app.run(port= 80)
     #host='0.0.0.0' להתחברות ממכשירים אחרים אחרת לפחות מהפקודה למעלה

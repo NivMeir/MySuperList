@@ -17,12 +17,12 @@
     .topnav a {
       float: left;
       color: #f2f2f2;
-      padding: 14px 16px;
-      height: 40px;
+      padding: 14px 0px;
+      height: 48px;
       text-decoration: none;
       text-align: center;
       font-size: 25px;
-      width: 30%;
+      width: 25%;
     }
 
     /* Change the color of links on hover */
@@ -47,16 +47,44 @@
       width: 35%;
       border-radius: 30%;
     }
+
+        button {
+      background-color: #99CDFF;
+      color: white;
+      padding: 14px 20px;
+      margin: 8px 0;
+      border: none;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    button:hover {
+      opacity: 0.8;
+    }
+
+    .backbutton {
+      position: -webkit-sticky;
+      position: sticky;
+      bottom: 0;
+      padding: 50px;
+      font-size: 20px;
+      width: auto;
+      margin: 0 auto;
+      padding: 10px 18px;
+      background-color: #99CDFF;
+    }
  </style>
 <div class="topnav">
 <a class="active" style="font-family:verdana;"><b>Hello {{ name }}</b></a>
-<a href="mysuperlist" style="font-family:verdana;"><b>MY SUPER LIST</b></a>
-<a href="allproductsmenu" style="font-family:verdana;"><b>ALL PRODUCTS</b></a>
+    <a href="mysuperlist" style="font-family:verdana;"><b>MY SUPER LIST</b></a>
+    <a href="usermap" style="font-family:verdana;"><b>MY SUPER MAP</b></a>
+    <a href="allproductsmenu" style="font-family:verdana;"><b>ALL PRODUCTS</b></a>
 </div>
 </head>
 <body>
     <div class="imgcontainer">
         <img src="static\project logo2.jpg" alt="Logo" class="logo">
     </div>
+<button type="button" class="backbutton" style="text-align:center;" onclick="location.href='/'"><b>Log Out</b></button>
 </body>
 </html>

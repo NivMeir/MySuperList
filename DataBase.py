@@ -3,11 +3,6 @@ import emails_and_encryption
 passcheck = emails_and_encryption.Extras()
 
 class Users:
-    """Creates database with users table includes:
-       create query
-       insert query
-       select query
-    """
 
     def __init__(self, tablename="users", userid = "userid", email="email", password="password", username="username"):
         self.__tablename = tablename
@@ -38,7 +33,6 @@ class Users:
         if self.email_isexist(email):
             conn = sqlite3.connect('Super_List_Data_Base.db')
             strsql = "SELECT * from " + self.__tablename + ";"
-            print(strsql)
             cursor = conn.execute(strsql)
             for row in cursor:
                 if email == row[1]:
@@ -49,7 +43,6 @@ class Users:
     def get_user_name(self, id):
         conn = sqlite3.connect('Super_List_Data_Base.db')
         strsql = "SELECT * from " + self.__tablename + ";"
-        print(strsql)
         cursor = conn.execute(strsql)
         for row in cursor:
             if id == row[0]:
@@ -59,7 +52,6 @@ class Users:
     def get_user_email(self, id):
         conn = sqlite3.connect('Super_List_Data_Base.db')
         strsql = "SELECT * from " + self.__tablename + ";"
-        print(strsql)
         cursor = conn.execute(strsql)
         for row in cursor:
             if id == row[0]:
@@ -72,7 +64,6 @@ class Users:
             insert_query = "INSERT INTO " + self.__tablename + " (" + self.__email + "," + self.__password + "," + \
              self.__username + ") VALUES"
             insert_query += "(" + "'" + email + "'" + "," + "'" + password + "'" + "," + "'" + username + "'" + ");"
-            print(insert_query)
             conn.execute(insert_query)
             conn.commit()
             conn.close()
@@ -105,7 +96,6 @@ class Users:
     def user_isexist(self, email, password):
         conn = sqlite3.connect('Super_List_Data_Base.db')
         strsql = "SELECT * from " + self.__tablename + ";"
-        print(strsql)
         cursor = conn.execute(strsql)
         for row in cursor:
             if email == row[1] and passcheck.encryptiontest(row[2], password):
@@ -115,7 +105,6 @@ class Users:
     def update_password(self, email, newpass):
         conn = sqlite3.connect('Super_List_Data_Base.db')
         strsql ="UPDATE " + self.__tablename + " SET password= " + "'" + str(newpass) + "'" + " WHERE email= '" + email + "';"
-        #UPDATE users SET password= 'hamagniv28' WHERE email= 'nivmeir2804@gmail.com';
         print(strsql)
         conn.execute(strsql)
         conn.commit()
@@ -124,11 +113,6 @@ class Users:
 
 
 class Mylist:
-    """Creates database with users table includes:
-       create query
-       insert query
-       select query
-    """
 
     def __init__(self, tablename="mylist", userid = "userid", product="product", locationnum ="locationnum", locationname ="locationname", shelf = "shelf"):
         self.__tablename = tablename
@@ -142,9 +126,7 @@ class Mylist:
         query_str = "CREATE TABLE IF NOT EXISTS " + tablename + "(" + id + " INTEGER " + ","
         query_str += " " + self.__product + " TEXT ,"+ self.__locationname + " TEXT ," + self.__locationnum + " INTEGER    NOT NULL " + "," + self.__shelf + " TEXT ,"
         query_str += " " + " FOREIGN KEY ( userid ) REFERENCES users( userid ));"
-        #"FOREIGN KEY(PersonID) REFERENCES Persons(PersonID)"
         conn = sqlite3.connect('Super_List_Data_Base.db')
-        # conn.execute("drop table users")
         conn.execute(query_str)
         print("My list table created successfully")
         conn.commit()
@@ -157,10 +139,8 @@ class Mylist:
     def print_table(self):
         conn = sqlite3.connect('Super_List_Data_Base.db')
         strsql = "SELECT * from " + self.__tablename + ";"
-        print(strsql)
         cursor = conn.execute(strsql)
         for row in cursor:
-            # if product == row[0]:
             print("product: " + row[1] + "\tdepartment: " + str(row[2]) + "\tshelf: " + str(row[4]))
 
     def get_table_name(self):
@@ -184,7 +164,6 @@ class Mylist:
     def product_isexist(self, product, id):
         conn = sqlite3.connect('Super_List_Data_Base.db')
         strsql = "SELECT * from " + self.__tablename + ";"
-        print(strsql)
         cursor = conn.execute(strsql)
         for row in cursor:
             if id == row[0] and product == row[1]:
@@ -215,108 +194,38 @@ class Mylist:
             print("This product wasn't in the List")
 
     def get_my_products(self, id):
-            """SELECT
-    	userid,
-    	product,
-    	locationname,
-    	locationnum,
-    	shelf
-    FROM
-    	mylist
-    ORDER BY
-    	locationnum ASC,
-    	shelf ASC;"""
-            conn = sqlite3.connect('Super_List_Data_Base.db')
-            insert_query = "SELECT userid, product, locationname, locationnum,shelf FROM mylist ORDER BY userid ASC, locationnum ASC, shelf ASC;"
-            print(insert_query)
-            cursor = conn.execute(insert_query)
-            newlist = []
-            for row in cursor:
-                if row[0] == id:
-                    addproduct = {
-                        'pname': row[1],
-                        'pclass': row[2],
-                        'shelf': row[4]}
-                    newlist.append(addproduct)
-            print("done sorting")
-            return newlist
-
-"""
-    def findminclass(self, mylist):
-        if len(mylist) == 0:
-            return 0
-        min = mylist[0]['pclassnum']
-        for product in mylist:
-            if min > product['pclassnum']:
-                min = product['pclassnum']
-        return min
-
-    def findminshelf(self, mylist, cmin):
-        if len(mylist) == 0:
-            return 0
-        j=0
-        for i in range(len(mylist)):
-            if mylist[i]['pclassnum'] == cmin:
-                j=i
-        min = mylist[j]['shelf']
-        for product in mylist:
-            if cmin == product['pclassnum'] and  min > product['shelf']:
-                min = product['shelf']
-        return min
-
-    def numofshelves(self, mylist, cmin):
-        num = 0
-        added = []
-        for product in mylist:
-            if product['pclassnum'] == cmin and product['shelf'] not in added:
-                added.append(product['shelf'])
-                num += 1
-        return num
-
-    def numofclasses(self, mylist):
-        num = 0
-        added = []
-        for product in mylist:
-            if product['pclassnum'] not in added:
-                added.append(product['pclassnum'])
-                num += 1
-        return num
-
-    def sortmylist(self, mylist):
+        conn = sqlite3.connect('Super_List_Data_Base.db')
+        insert_query = "SELECT userid, product, locationname, locationnum,shelf FROM mylist ORDER BY userid ASC, locationnum ASC, shelf ASC;"
+        print(insert_query)
+        cursor = conn.execute(insert_query)
         newlist = []
-        numclasses = self.numofclasses(mylist)
-        print("numclasses ", numclasses)
-        for i in range(numclasses):
-            print("i ", i)
-            cmin = self.findminclass(mylist)
-            print("cmin ", cmin)
-            numshelves = self.numofshelves(mylist, cmin)
-            print("numshelves ", numshelves)
-            for j in range(numshelves):
-                print("j ", j)
-                smin = self.findminshelf(mylist, cmin)
-                print("smin ", smin)
-                for product in mylist:
-                    print(product['pname'], product['pclassnum'], product['shelf'])
-                    if cmin == product['pclassnum'] and smin == product['shelf']:
-                        addproduct = {
-                            'pname': product['pname'],
-                            'pclass': product['pclass'],
-                            'shelf': product['shelf']}
-                        newlist.append(addproduct)
-                        mylist.remove(product)
+        for row in cursor:
+            if row[0] == id:
+                addproduct = {
+                    'pname': row[1],
+                    'pclass': row[2],
+                    'shelf': row[4]}
+                newlist.append(addproduct)
         print("done sorting")
         return newlist
-"""
 
+    def get_place(self, id):
+        conn = sqlite3.connect('Super_List_Data_Base.db')
+        insert_query = "SELECT userid, product, locationname, locationnum,shelf FROM mylist ORDER BY userid ASC, locationnum ASC, shelf ASC;"
+        print(insert_query)
+        cursor = conn.execute(insert_query)
+        newlist = []
+        for row in cursor:
+            if row[0] == id:
+                addproduct = {
+                    'pclass': row[3],
+                    'shelf': row[4]}
+                newlist.append(addproduct)
+        print("done sorting")
+        return newlist
 
 
 class Allproducts:
-    """Creates database with users table includes:
-       create query
-       insert query
-       select query
-    """
 
     def __init__(self, tablename="allproducts", product="product", locationnum ="locationnum", locationname ="locationname", shelf = "shelf"):
         self.__tablename = tablename
@@ -351,7 +260,6 @@ class Allproducts:
     def get_products(self, location):
         conn = sqlite3.connect('Super_List_Data_Base.db')
         strsql = "SELECT * from " + self.__tablename + ";"
-        print(strsql)
         cursor = conn.execute(strsql)
         productlist = ["", "Fruits and Vegetables", "Drinks", "Meat, Chicken and Fish", "Bread", "Milk, Cheese and Eggs","Snacks"]
         list =[]
@@ -386,7 +294,6 @@ class Allproducts:
     def product_isexist(self, product):
         conn = sqlite3.connect('Super_List_Data_Base.db')
         strsql = "SELECT * from " + self.__tablename + ";"
-        print(strsql)
         cursor = conn.execute(strsql)
         for row in cursor:
             if product == row[1]:
@@ -396,7 +303,6 @@ class Allproducts:
     def get_product_info(self, product):
         conn = sqlite3.connect('Super_List_Data_Base.db')
         strsql = "SELECT * from " + self.__tablename + ";"
-        print(strsql)
         cursor = conn.execute(strsql)
         for row in cursor:
             if product == row[0]:
@@ -406,7 +312,6 @@ class Allproducts:
     def isempty(self):
         conn = sqlite3.connect('Super_List_Data_Base.db')
         strsql = "SELECT * from " + self.__tablename + ";"
-        print(strsql)
         lines = 0
         cursor = conn.execute(strsql)
         for row in cursor:

@@ -1,39 +1,6 @@
 import smtplib
 import random
 import bcrypt
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-
-"""
-def codegenerator(name):
-    code = ""
-    num = 5
-    for letter in name:
-        if num != 0:
-            if letter.isalpha():
-                number = str(ord(letter) - 96)
-                rand = str(random.choice(string.ascii_letters))
-                rand = rand.lower()
-                code += number + rand
-                num -= 1
-    print(code)
-
-def send(email, code):
-    code_of_gmail = "sugermhziatllzeb"
-    smtpObj = smtplib.SMTP('smtp.gmail.com', 25)
-    smtpObj.starttls()
-    smtpObj.login("superlistcompany@gmail.com", code_of_gmail)
-    multipart_msg = MIMEMultipart()
-    message = "hi " + str(code)
-    multipart_msg['From'] = email
-    multipart_msg['To'] = email
-    multipart_msg['Subject'] = "JournalDev Subject"
-    multipart_msg.attach(MIMEText(message, 'plain'))
-    smtpObj.send_message(multipart_msg)
-    del multipart_msg
-    smtpObj.quit()
-    print("Successfully sent email")"""
-
 
 class Extras:
 
@@ -75,9 +42,6 @@ Please enter the following code to confirm your email: {}
         except BaseException as e:
             print(e)
 
+        
 
-#abc = Emails()
-#abc.encrypt("hamagniv28")
-#abc.checkpassdecreaption("$2b$12$GjzIy.zYxXJacHsfL/bo5OXVnUeovPiimHdVOuPenZv5hrKuNJLkW", "hamagniv28")
-#send_email("nivmeir2804@gmail.com", 123456)
-#codegenerator("m")
+

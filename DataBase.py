@@ -3,7 +3,9 @@ import emails_and_encryption
 passcheck = emails_and_encryption.Extras()
 
 class Users:
-
+    """
+    create a users table in the data base
+    """
     def __init__(self, tablename="users", userid = "userid", email="email", password="password", username="username"):
         self.__tablename = tablename
         self.__userid = userid
